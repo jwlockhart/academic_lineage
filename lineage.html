@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta name="author" content="" />
+
+	<title>Jeff Lockhart's Academic Lineage</title>
+<script>
+//google analytics here if you want them.
+
+</script>
+</head>
+<style>
+
+.link {
+  stroke: #ccc;
+}
+
+.node text {
+  pointer-events: none;
+  font: 10px sans-serif;
+}
+
+</style>
+<body>
+    <h1>_____'s Academic Lineage</h1>
+    <p>Mouseover for more information about each person. Click and drag to move things around. Technical details at the bottom of this page.</p>
+    
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var width = window.innerWidth - 40,
+    height = window.innerHeight,
+    radius = 8;
+
+//these colors are totally arbitrary and unsystematic.
+var color = d3.scaleOrdinal().domain(["Unknown",
+                                      "Sociology", 
+                                      "English", 
+                                      "Economics", 
+                                      "Philosophy", 
+                                      "Political Science",
+                                      "Computer Science",
+                                      "History",
+                                      "Sociology and Anthropology",
+                                      "Demography and Sociology",
+                                      "Anthropology",
+                                      "United States History",
+                                      "Political Theory",
+                                      "Literature",
+                                      "Comparative Literature",
+                                      "Classical Studies",
+                                      "Social Sciences"
+                                     ]).range(["silver",
+                                               "green", 
+                                               "blue", 
+                                               "greenyellow", 
+                                               "darkorchid",
+                                               "lightgreen",
+                                               "red",
+                                               "teal",
+                                               "green",
+                                               "olivedrab",
+                                               "turquoise",
+                                               "teal",
+                                               "lightgreen",
+                                               "blue",
+                                               "blue",
+                                               "slateblue",
+                                               "lightgreen"
+                                              ]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var simulation = d3.forceSimulation()
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("charge", d3.forceManyBody())
+    .force("link", d3.forceLink().id(function(d) { return d.id; }));
+
+d3.json("data.json", function(error, json) {
+  if (error) throw error;
+
+  simulation
+    .nodes(json.nodes);
+  
+  simulation
+    .force("link")
+    .links(json.links);
+
+  var link = svg.selectAll(".link")
+      .data(json.links)
+    .enter().append("line")
+      .attr("class", "link");
+
+  var node = svg.selectAll(".node")
+      .data(json.nodes)
+      .enter()
+      .append("g")
+      .attr("class", "node")
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+  node.append("circle")
+      .attr("r", radius)
+      .attr("fill", function(d) { return color(d.department); });
+    
+
+    
+  node.append("title")
+      .text(function(d) { return d.description; });
+
+  node.append("text")
+      .attr("dx", 12)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name });
+
+  simulation.on("tick", ticked);
+    
+  function ticked() {
+    link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+       
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  }
+});
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+    
+</script>
+
+<p>The code for this page is from <a href="https://github.com/jwlockhart/academic_lineage" target="_blank">Jeff Lockhart's github</a>.</p>
+</body>
